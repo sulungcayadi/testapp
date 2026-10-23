@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uipath-robotdoc"
+version = "0.1.0"
+description = "Generate robot documentation (HTML, DOCX, PPTX, XLSX, PDF, PNG) from UiPath packages, using SQLite."
+requires-python = ">=3.10"
+dependencies = [
+    "jinja2>=3.1",
+    "python-docx>=1.1",
+    "python-pptx>=0.6.23",
+    "openpyxl>=3.1",
+    "reportlab>=4.0",
+    "matplotlib>=3.8",
+    "Pillow>=10",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+uipath-robotdoc = "uipath_robotdoc.cli:main"
+
+[tool.setuptools]
+packages = ["uipath_robotdoc"]

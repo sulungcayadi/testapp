@@ -1,0 +1,5 @@
+.git
+__pycache__
+robot_docs
+*.nupkg
+tests

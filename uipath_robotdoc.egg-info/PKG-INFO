@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: uipath-robotdoc
+Version: 0.1.0
+Summary: Generate robot documentation (HTML, DOCX, PPTX, XLSX, PDF, PNG) from UiPath packages, using SQLite.
+Requires-Python: >=3.10
+Requires-Dist: jinja2>=3.1
+Requires-Dist: python-docx>=1.1
+Requires-Dist: python-pptx>=0.6.23
+Requires-Dist: openpyxl>=3.1
+Requires-Dist: reportlab>=4.0
+Requires-Dist: matplotlib>=3.8
+Requires-Dist: Pillow>=10
+Provides-Extra: test
+Requires-Dist: pytest>=8; extra == "test"

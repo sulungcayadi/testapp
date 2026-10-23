@@ -3,10 +3,17 @@
 Reads a UiPath package (`.nupkg`), a project folder or a single `.xaml` file, stores what it finds in SQLite, and writes robot documentation as **HTML, DOCX, PPTX, XLSX, PDF and PNG**.
 
 ```bash
-pip install -r requirements.txt
+python -m venv .venv && . .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install .                                    # installs the `uipath-robotdoc` command
+uipath-robotdoc --make-sample demo.nupkg         # sample package to try
+uipath-robotdoc demo.nupkg -o robot_docs         # writes every format into ./robot_docs
+```
+
+Other invocations:
+
+```bash
 python -m uipath_robotdoc MyRobot.nupkg -o robot_docs            # every format
 python -m uipath_robotdoc MyRobot.nupkg Other.nupkg -f html,xlsx   # several inputs, chosen formats
-python -m uipath_robotdoc --make-sample demo.nupkg                 # try it without a real package
 ```
 
 ## What is extracted
@@ -31,3 +38,10 @@ The parsed data is kept in `<out>/robot_docs.db` (override with `--db`); re-runn
 - Activity detection is heuristic (display names, UiPath namespaces and core statements), so unusual custom activities without a `DisplayName` may be skipped.
 
 Run the tests with `python -m pytest`.
+
+## Deploying
+Python 3.10+ and the bundled `sqlite3` module are all it needs; SQLite is a single file, so there is no database server to set up.
+
+- **Server / CI / scheduled job**: `pip install .` in a virtualenv, then call `uipath-robotdoc <package> -o <dir> --db <path>.db` (for example from cron, or a pipeline step after publishing a package). Keep the `--db` file on persistent storage if you want history; the output folder can be thrown away.
+- **Docker**: `docker build -t uipath-robotdoc .` then `docker run --rm -v "$PWD":/work uipath-robotdoc MyRobot.nupkg -o out`. The container runs as a non-root user and writes into the mounted folder.
+- The tool is a command-line program, not a web service. To serve the results, publish the generated `.html` (it is self-contained) from any static host.
