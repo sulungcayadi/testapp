@@ -796,7 +796,7 @@ def page_benchmarks(req):
             now_txt, bar = "-", ""
         else:
             val, goal = cur
-            now_txt = "-" if val is None else str(val)
+            now_txt = "-" if val is None else ("{}%" if key in ("monthly_active", "kpi") else "{}").format(val)
             bar = progress_bar(min(100, pct(val or 0, goal)), T("{n}% of target", n=min(100, pct(val or 0, goal)))) if goal else ""
         targets.append("<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td class='muted small'>{}</td></tr>".format(
             esc(i18n.label(req.lang, "target_name", key, name)), esc(i18n.label(req.lang, "target_value", key, target)),

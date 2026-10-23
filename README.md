@@ -1,8 +1,10 @@
-# Copilot Agent Builder Training (T1)
+# Copilot Agent Hub and T1 Training
 
-A local training app that teaches associates to build **one Microsoft 365 Copilot agent with one purpose**, test it and use it safely. It runs on any PC with Python. There is nothing to install and no internet connection is needed; all data is kept in one SQLite file.
+A local web app that teaches associates to build **one Microsoft 365 Copilot agent with one purpose**, and then becomes the organization's single front door for Copilot agents: an agent registry with governance reviews, an ideas board, licence requests, a coach network, a prompt library, adoption insights and benchmarks against leading companies.
 
-The course content follows the project brief *Copilot_Agent_Builder_Training_Brief.md*: the six key messages, both guided examples (Email Clarity Coach and Expense Policy Helper), the 12-step hands-on lab, the three standard templates, the three knowledge-check questions, and the 11 organization case studies with honest product labels.
+It runs on any PC with Python. There is nothing to install and no internet connection is needed; all data is kept in one SQLite file. The whole app is available in **English, Japanese, Simplified Chinese, Thai, Indonesian and Vietnamese**.
+
+**Guides in other languages:** [日本語](docs/README.ja.md) · [简体中文](docs/README.zh-CN.md) · [ไทย](docs/README.th.md) · [Bahasa Indonesia](docs/README.id.md) · [Tiếng Việt](docs/README.vi.md)
 
 ## Quick start
 
@@ -13,41 +15,68 @@ The course content follows the project brief *Copilot_Agent_Builder_Training_Bri
    - **macOS / Linux:** run `./start_mac_linux.sh`
    - **Or from any terminal:** `python app.py`
 4. Your browser opens at <http://127.0.0.1:8000>. On first launch, create the administrator account.
-5. Learners select **Create your learner account** on the sign-in page and register with their associate ID.
+5. Learners select **Create your account** on the sign-in page and register with their associate ID.
+6. Anyone can change the language from the **Language** menu at the top of every page, including the sign-in page. The choice is remembered.
 
 To stop the app, press `Ctrl+C` in the terminal window (or close it).
 
+## Languages
+
+Every screen, lesson, quiz question, explanation, lab step, template, glossary entry, benchmark table, notification and the certificate is translated. Two things are deliberately left in English:
+
+- **Microsoft interface labels** such as *New agent*, *Configure*, *Try it*, *Can chat* and *Settings > Personalization*. Learners see these labels in Microsoft 365 Copilot, so the course uses them exactly.
+- **Titles of Microsoft Learn source pages**, so facilitators can find the original page.
+
+On the Templates page, each translated template also offers the **English original**, because some organizations require agent instructions to be written in English. Text that administrators type in (organization questions, a custom acceptable-use policy) is shown as written.
+
+Translations live in `training/locales/<code>.py` as simple `English: translation` dictionaries. After editing course content, run `python app.py i18n-extract --check` to see which new or changed segments still need a translation in each language, and `python app.py i18n-extract --missing ja` to list them for a translator. Until a segment is translated, the English text is shown.
+
 ## What's included
 
-### For learners
+### Learn (every associate)
 | Feature | What it does |
 |---|---|
-| **10 course modules, 28 lessons** | Welcome, agent basics, planning, building in Microsoft 365 Copilot, configuring, testing, sharing/memory/safety, two guided examples, lab briefing, mistakes and case studies. About 150 minutes in total; a 60-minute essentials route is described in lesson 1.3. |
-| **Module quizzes** | A short quiz after each module with instant scoring and an explanation for every answer. Answer options are shuffled, and learners can retry. |
-| **Final assessment** | 15 questions drawn at random from the 44-question bank, always including the 3 key knowledge-check questions. Pass mark is 80% by default. |
-| **Hands-on lab tracker** | The 12 lab steps with their "Done when" checks. Learners tick each step and can add an optional note while they work in Microsoft 365 Copilot. |
-| **My agent charter** | A form for Template A. It saves the charter, drafts copy-ready agent instructions from it, and downloads both as a `.txt` file. |
-| **Templates page** | The 3 standard templates and both example configurations, each with a **Copy** button. |
-| **Progress dashboard** | Overall progress bar, a suggested next step, and the status of every module. |
-| **Certificate** | Unlocks once all lessons, lab steps 1 to 10 and the final assessment are done. It is printable and can be saved as a PDF. |
-| **Feedback** | A 1 to 5 rating and a comment. |
+| **Core T1 course: 10 modules, 29 lessons** | Welcome, agent basics, planning, building in Microsoft 365 Copilot, configuring, testing, sharing/memory/safety, two guided examples, lab briefing, mistakes and real-world inspiration. About 150 minutes; a 60-minute essentials route is described in lesson 1.3. |
+| **Leader track and coach track** | Optional modules on what leading companies do, tiered governance, measuring value and a 12-month roadmap (leaders), and on supporting colleagues and reviewing agents (coaches). |
+| **Skills check and learning paths** | A 2-minute self-assessment recommends modules. Builder levels 1 to 3 unlock wider sharing in the hub, as in Hitachi's certification-led approach. |
+| **Module quizzes and final assessment** | Instant scoring with an explanation for every answer. The final assessment draws 15 questions from a 58-question bank, always including the 3 key knowledge-check questions. Pass mark 80% by default. |
+| **Hands-on lab tracker** | The 12 lab steps with their "Done when" checks, ticked while working in Microsoft 365 Copilot. |
+| **My agent charter** | Template A as a form. It drafts copy-ready agent instructions and can register the agent in the hub. |
+| **Toolkit** | Templates with Copy buttons, a printable quick reference card, glossary, Microsoft references, facilitator guide, and the policy and help page. |
+| **Certificate** | Unlocks after all lessons, lab steps 1 to 10 and the final assessment. Printable or saved as PDF, in the learner's language. |
 
-### For administrators
+### Agent hub (the integrated ecosystem)
 | Feature | What it does |
 |---|---|
-| **Overview dashboard** | Associates loaded, certified, in progress and not started; activity in the last 7 days; average final score; average feedback; certification rate by department; and a module funnel showing where learners drop off. |
-| **Learners** | Search and filter by department or status, 50 per page. Open a learner to see their quiz attempts, lab steps and charter, edit their details or reset their password. |
-| **Import associates** | Upload or paste a CSV (`associate_id, name, email, department, location`). This is built for a 10,000-associate roll-out: re-importing updates details and keeps progress. |
-| **CSV export** | A full progress report for everyone or for one department, ready for Excel. |
-| **Question bank** | Each question's correct-answer rate, hardest first. Admins can disable questions or add organization-specific ones. |
-| **Settings** | Organization name (shown in the header and on certificates) and the pass mark. |
+| **Agent registry** | Every agent shared beyond its owner is registered with a purpose, owner, tier, knowledge sources, data sensitivity, sharing scope, one KPI with a baseline, test results and a review date. Before building, associates search the approved catalogue for an agent they can reuse. |
+| **Governance reviews** | Agents shared with a team or the organization, or using confidential data, go to a coach's review queue with an 8-point checklist. Tier 3 and 4 agents (acting on data or autonomously) go to the CoE. Owners must hold the T1 certificate before submitting. |
+| **90-day value reviews** | Approved agents get a review date. Owners record the KPI result; agents without measurable value are retired. Overdue reviews appear in a retirement queue. |
+| **Ideas board** | Associates post tasks Copilot could help with, vote and comment. Agents built from an idea are linked back to it. |
+| **Licence requests** | Teams request Microsoft 365 Copilot seats with a use case and expected hours saved. The CoE approves them in waves, highest expected value first, as Lloyds did. |
+| **Community** | Coach directory with office hours, events (promptathons, show and tell, live training), and a rated prompt library. |
+| **Ask the CoE** | Questions about policy, data, licences and incidents, with the acceptable-use guideline and data rules beside them. |
+| **Hours saved** | Each associate logs hours saved per week on the hub home page. |
+| **Notifications** | An inbox for review decisions, licence decisions, comments on ideas and answers from the CoE. |
+| **Insights** | One dashboard across training, agents, ideas, licences and hours saved, with a 6-month trend, breakdowns by tier, status and department, and an adoption index. |
+| **Benchmarks** | What Toyota, Siemens, Hitachi, Rabobank, Lloyds, Vodafone, Barclays, Volkswagen and Accenture did; six shared habits; Microsoft's governance zones; a 12-month roadmap; and live progress against targets scaled to your number of associates. Every figure is labelled as company- or vendor-reported, with its source. |
+
+### Administration (the CoE)
+| Feature | What it does |
+|---|---|
+| **Overview dashboard** | Associates loaded, certified, in progress and not started; activity; average final score and feedback; certification rate by department; and a module funnel. |
+| **Learners** | Search and filter, 50 per page. Open a learner to see quiz attempts, lab steps, charter and agents, edit details, reset the password, or make them a coach. |
+| **Import associates** | Upload or paste a CSV (`associate_id, name, email, department, location`). Re-importing updates details and keeps progress. |
+| **CSV exports** | The full progress report, and the whole question bank with answers in any or all languages. |
+| **Question bank** | Each question's correct-answer rate, hardest first. Disable questions or add organization-specific ones. |
+| **Settings** | Organization name, pass mark, and your own acceptable-use guideline (otherwise a translated starter guideline is shown). |
 
 ## Rolling out to 10,000 associates
 
-- **Pre-load associates:** export a list from HR into the CSV template (Admin → Import associates → *Download a CSV template*), or run `python app.py import-users associates.csv`. Associates then register with their ID and choose a password. The department you imported is kept.
-- **One shared copy:** to let everyone use the same database, run the app on a machine people can reach on your intranet: `python app.py --host 0.0.0.0 --port 8000`. Learners then open `http://<that-machine>:8000`. The app uses plain HTTP, so only expose it on a trusted internal network, or put it behind your organization's HTTPS reverse proxy. Check with IT before you do this.
-- **Single PC / classroom:** the default setup (`127.0.0.1`) only accepts connections from the same computer. This suits facilitator demos, kiosks or individual use.
-- **Performance:** the tests load 10,000 associates and build the dashboard, filtered lists and the CSV export in well under 10 seconds. SQLite runs in WAL mode so several learners can save at once.
+- **Pre-load associates:** export a list from HR into the CSV template (Admin → Import associates → *Download a CSV template*), or run `python app.py import-users associates.csv`. Associates then register with their ID and choose a password.
+- **Appoint coaches:** open a learner in Admin → Learners and select *Make this person a coach*. Aim for about 1 coach per 60 associates (about 170 for 10,000).
+- **One shared copy:** to let everyone use the same database, run the app on a machine people can reach on your intranet: `python app.py --host 0.0.0.0 --port 8000`. The app uses plain HTTP, so only expose it on a trusted internal network, or put it behind your organization's HTTPS reverse proxy. Check with IT first.
+- **Single PC / classroom:** the default setup (`127.0.0.1`) only accepts connections from the same computer.
+- **Performance:** the tests load 10,000 associates and build the dashboard, filtered lists and the CSV export in well under 10 seconds. SQLite runs in WAL mode so several people can save at once.
 - **Backups:** all data is in `data/training.db`. Copy that file while the app is stopped, or use a SQLite backup tool.
 
 ## Command reference
@@ -60,7 +89,9 @@ python app.py create-admin             Add an administrator, or promote an exist
 python app.py import-users FILE.csv    Import or update associates from CSV
 python app.py export FILE.csv          Write the progress report to CSV
 python app.py reseed                   Reload course content after editing training/content.py
-python app.py demo-data 500            Add 500 fictional DEMO learners to try out the reports
+python app.py demo-data 500            Add 500 fictional DEMO learners to try out the training reports
+python app.py i18n-extract --check     Report missing translations for every language
+python app.py i18n-extract --missing th  List the English segments not yet translated into Thai
 python app.py --db other.db ...        Use a different database file (or set TRAINING_DB)
 ```
 
@@ -68,17 +99,18 @@ Use `demo-data` only on a test database. Demo learners have IDs starting with `D
 
 ## Updating the course content
 
-All learner-facing text (lessons, lab steps, templates and questions) is in `training/content.py`. To change it:
+All learner-facing English text (lessons, lab steps, templates, questions, benchmarks, glossary) is in `training/content.py` and `training/blocks.py`. To change it:
 
-1. Edit `training/content.py`.
+1. Edit the English text.
 2. Run `python app.py reseed`. Matching is by lesson slug and question code, so learner progress and quiz history are kept.
-3. Restart the app.
+3. Run `python app.py i18n-extract --check` and add translations for the changed segments to `training/locales/`.
+4. Restart the app.
 
 **Before you deliver the course**, a facilitator should:
-- Open each Microsoft source link listed in the lessons and confirm the steps and labels still match your tenant. Microsoft changes the Copilot UI often.
-- Add your organization's own verified screenshots for module 4. The app does not include Microsoft screenshots, so that no image is shown as current UI without being verified.
-- Re-check each case-study source before presenting it. The app names the product used and flags the three evidence gaps (Duolingo, ANZ, WEX), but it quotes no outcome figures.
-- Replace placeholder escalation routes ("Copilot champion or IT service desk") with your real contacts, if you want to.
+- Open each Microsoft Learn source on the References page and confirm the steps and labels still match your tenant. Microsoft changes the Copilot UI often.
+- Add your organization's own verified screenshots for module 4. The app includes no Microsoft screenshots, so that no image is shown as current UI without being verified.
+- Re-check each case study and benchmark source before presenting it. The app names the product each company used and labels reported figures, but facilitators should verify them.
+- Replace the starter acceptable-use guideline (Admin → Settings) with your approved one.
 
 ## Project layout
 
@@ -87,12 +119,22 @@ app.py                 Entry point and command line
 start_windows.bat      Double-click launcher for Windows
 start_mac_linux.sh     Launcher for macOS / Linux
 training/
-  content.py           Course content: modules, lessons, lab, templates, question bank
+  content.py           Course and hub content: modules, lab, templates, questions, benchmarks
+  blocks.py            Reusable HTML blocks and Microsoft Learn sources
   db.py                SQLite schema and content seeding
   services.py          Accounts, progress, quizzes, lab, charters, reports
-  web.py               Web server, pages and routing (Python standard library only)
+  hub.py               Agent registry, reviews, ideas, licences, community, insights
+  core.py              Request handling, HTML layout, CSRF, sessions
+  pages_learn.py       Learner pages
+  pages_hub.py         Agent hub, community, help and insights pages
+  pages_admin.py       Administration pages
+  web.py               Routing and the web server (Python standard library only)
+  i18n.py              Language selection and translation lookup
+  i18n_tools.py        Finds every translatable segment (for translators and tests)
+  locales/             ja, zh_CN, th, id, vi translations
   static/              CSS, JavaScript and the CSV template
-tests/test_app.py      End-to-end and unit tests
+docs/                  This guide in Japanese, Chinese, Thai, Indonesian and Vietnamese
+tests/                 End-to-end and unit tests
 data/training.db       Created on first run (not committed)
 ```
 
@@ -102,17 +144,19 @@ data/training.db       Created on first run (not committed)
 python -m unittest discover -s tests -v
 ```
 
-The tests start the real server on a random port. They cover first-time setup, registration, the full learner journey to the certificate, CSRF protection, the final-assessment tamper check, CSV import and claiming an account, admin reports, the question bank, settings, and a 10,000-associate load.
+The tests start the real server on a random port. They cover first-time setup, registration, the full learner journey to the certificate, CSRF protection, the final-assessment tamper check, CSV import, admin reports, the question bank, settings, a 10,000-associate load, the full agent lifecycle (register, submit, review, approve, value review, retire), CoE-only tiers, ideas, licences, events, prompts and coaches. A crawl test opens every page, module, lesson and quiz in all six languages and fails if any text is left untranslated, and a check confirms every translation keeps the same placeholders as the English.
 
 ## Security notes
 
 - Passwords are stored as salted PBKDF2-SHA256 hashes. Sessions use random tokens in HttpOnly, SameSite cookies and expire after 12 hours.
 - Every form submitted by a signed-in user is protected against CSRF, and all user input is HTML-escaped.
 - The question set for the final assessment is signed, so learners cannot swap in easier questions.
-- Tell learners not to enter confidential data in notes, charters or feedback. The app reminds them on each page.
+- Associates cannot review their own agents, and only the CoE can approve Tier 3 and 4 agents.
+- Tell associates not to enter confidential data in notes, charters, ideas or prompts. The app reminds them where it matters.
 
 ## Scope and limitations
 
-- The app teaches Microsoft 365 Copilot Agent Builder. It does not connect to Microsoft 365 and does not check that a learner really built an agent. The lab is self-reported, and facilitators can review the learner's notes and charter in the admin pages.
-- The content is in English only. The brief's Thai, Japanese and Simplified Chinese versions, PowerPoint decks, DOCX guides, PDFs and cartoon assets are separate deliverables and are not part of this app.
+- The app teaches Microsoft 365 Copilot Agent Builder and governs agents built with it. It does not connect to Microsoft 365: it cannot see agents in your tenant or check that a learner really built one. The lab and the registry are self-reported, and coaches verify agents through the chat link during review.
+- Benchmark figures come from public company, vendor and media sources dated in the app. They are not independently audited, and targets are planning assumptions derived from them.
 - There is no single sign-on (Microsoft Entra ID). Accounts are local to the app.
+- Translations were prepared for this project and should be reviewed by a native-speaking facilitator in each country before roll-out, as you would with any training material.

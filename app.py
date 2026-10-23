@@ -10,6 +10,7 @@ Other commands (see README.md):
   python app.py export FILE.csv         Save the progress report to a CSV file
   python app.py reseed                  Reload course content after editing training/content.py
   python app.py demo-data [N]           Add N fictional learners with random progress (for trying the reports)
+  python app.py i18n-extract --check    Check that every language has a translation for every segment
 """
 
 import argparse
@@ -93,6 +94,20 @@ def cmd_reseed(args):
     conn.close()
 
 
+def cmd_i18n(args):
+    from training import i18n, i18n_tools
+    if args.check:
+        bad = 0
+        for code, name in i18n.LANGS[1:]:
+            gaps, errs = i18n_tools.missing(code), i18n_tools.placeholder_errors(code)
+            bad += len(gaps) + len(errs)
+            print("{:6} {:18} {:5} missing  {:3} placeholder errors".format(code, name, len(gaps), len(errs)))
+        sys.exit(1 if bad else 0)
+    segs = i18n_tools.missing(args.missing) if args.missing else i18n_tools.all_segments()
+    for n, text in enumerate(segs, 1):
+        print("{}\t{}".format(n, " ".join(text.split())))
+
+
 DEMO_DEPTS = ["Finance", "Sales", "Operations", "Human Resources", "IT", "Marketing", "Customer Service", "Legal"]
 DEMO_FIRST = ["Alex", "Sam", "Priya", "Kenji", "Mei", "Somchai", "Fatima", "Lucas", "Ana", "Omar", "Nok", "Yuki", "Chen", "Grace"]
 DEMO_LAST = ["Tan", "Sato", "Wong", "Garcia", "Khan", "Silva", "Nguyen", "Lee", "Patel", "Suzuki", "Li", "Brown"]
@@ -169,10 +184,14 @@ def main(argv=None):
     demo = sub.add_parser("demo-data", help="Add fictional learners for trying the reports")
     demo.add_argument("count", nargs="?", type=int, default=200)
 
+    ext = sub.add_parser("i18n-extract", help="List the English text segments for translators")
+    ext.add_argument("--missing", metavar="LANG", help="Only segments not yet translated into LANG (e.g. ja, zh-CN, th, id, vi)")
+    ext.add_argument("--check", action="store_true", help="Report missing translations for every language")
+
     args = parser.parse_args(argv)
     handlers = {
         None: cmd_run, "run": cmd_run, "create-admin": cmd_create_admin, "import-users": cmd_import,
-        "export": cmd_export, "reseed": cmd_reseed, "demo-data": cmd_demo,
+        "export": cmd_export, "reseed": cmd_reseed, "demo-data": cmd_demo, "i18n-extract": cmd_i18n,
     }
     handlers[args.command](args)
 
