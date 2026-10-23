@@ -193,7 +193,13 @@ def import_users_csv(conn, text):
 # Course structure and progress
 # ---------------------------------------------------------------------------
 
-def list_modules(conn):
+CORE_LESSONS_SQL = """SELECT COUNT(*) FROM lessons l JOIN modules m ON m.id = l.module_id
+    WHERE l.active = 1 AND m.track = 'core'"""
+
+
+def list_modules(conn, track=None):
+    if track:
+        return conn.execute("SELECT * FROM modules WHERE track = ? ORDER BY position", (track,)).fetchall()
     return conn.execute("SELECT * FROM modules ORDER BY position").fetchall()
 
 
@@ -249,14 +255,17 @@ def lab_done_steps(conn, user_id):
 
 def user_progress(conn, user_id):
     """Summary used by the dashboard, certificate and admin reports."""
-    total_lessons = conn.execute("SELECT COUNT(*) FROM lessons WHERE active = 1").fetchone()[0]
+    total_lessons = conn.execute(CORE_LESSONS_SQL).fetchone()[0]
     done_lessons = conn.execute(
         """SELECT COUNT(*) FROM lesson_progress lp JOIN lessons l ON l.id = lp.lesson_id
-           WHERE lp.user_id = ? AND l.active = 1""",
+           JOIN modules m ON m.id = l.module_id WHERE lp.user_id = ? AND l.active = 1 AND m.track = 'core'""",
         (user_id,),
     ).fetchone()[0]
     modules_with_quiz = {
-        r[0] for r in conn.execute("SELECT DISTINCT module_id FROM questions WHERE active = 1 AND module_id IS NOT NULL")
+        r[0] for r in conn.execute(
+            """SELECT DISTINCT q.module_id FROM questions q JOIN modules m ON m.id = q.module_id
+               WHERE q.active = 1 AND m.track = 'core'"""
+        )
     }
     passed_modules = passed_module_ids(conn, user_id) & modules_with_quiz
     lab = lab_done_steps(conn, user_id)
@@ -288,21 +297,23 @@ def user_progress(conn, user_id):
 
 
 def next_step(conn, user_id):
-    """Return (label, url) for the learner's next suggested action."""
+    """The learner's next suggested action in the core course, as a dict with
+    kind (lesson, quiz, lab, final, certificate), url, and module/lesson rows."""
     done = completed_lesson_ids(conn, user_id)
     passed = passed_module_ids(conn, user_id)
-    for mod in list_modules(conn):
+    for mod in list_modules(conn, "core"):
         for les in module_lessons(conn, mod["id"]):
             if les["id"] not in done:
-                return "Continue: " + les["title"], "/module/{}/lesson/{}".format(mod["slug"], les["slug"])
+                return {"kind": "lesson", "module": mod, "lesson": les,
+                        "url": "/module/{}/lesson/{}".format(mod["slug"], les["slug"])}
         if mod["id"] not in passed and module_questions(conn, mod["id"]):
-            return "Take the quiz for " + mod["title"], "/module/{}/quiz".format(mod["slug"])
+            return {"kind": "quiz", "module": mod, "url": "/module/{}/quiz".format(mod["slug"])}
     prog = user_progress(conn, user_id)
     if not prog["lab_ok"]:
-        return "Work through the hands-on lab", "/lab"
+        return {"kind": "lab", "url": "/lab"}
     if not prog["final_ok"]:
-        return "Take the final assessment", "/final"
-    return "Download your certificate", "/certificate"
+        return {"kind": "final", "url": "/final"}
+    return {"kind": "certificate", "url": "/certificate"}
 
 
 # ---------------------------------------------------------------------------
@@ -320,7 +331,10 @@ def final_questions(conn, count=None, rng=None):
     across modules, scenario questions first."""
     count = count or content.FINAL_QUESTION_COUNT
     rng = rng or random.SystemRandom()
-    rows = conn.execute("SELECT * FROM questions WHERE active = 1").fetchall()
+    rows = conn.execute(
+        """SELECT q.* FROM questions q LEFT JOIN modules m ON m.id = q.module_id
+           WHERE q.active = 1 AND COALESCE(m.track, 'core') = 'core'"""
+    ).fetchall()
     chosen = [r for r in rows if r["in_slide_check"]]
     rest = [r for r in rows if not r["in_slide_check"]]
     rng.shuffle(rest)
@@ -495,11 +509,13 @@ def _learner_stats_sql():
     return """
     WITH lessons_done AS (
         SELECT lp.user_id, COUNT(*) AS n FROM lesson_progress lp
-        JOIN lessons l ON l.id = lp.lesson_id AND l.active = 1 GROUP BY lp.user_id
+        JOIN lessons l ON l.id = lp.lesson_id AND l.active = 1
+        JOIN modules m ON m.id = l.module_id AND m.track = 'core' GROUP BY lp.user_id
     ),
     quiz_passed AS (
-        SELECT user_id, COUNT(DISTINCT module_id) AS n FROM quiz_attempts
-        WHERE kind = 'module' AND passed = 1 GROUP BY user_id
+        SELECT a.user_id, COUNT(DISTINCT a.module_id) AS n FROM quiz_attempts a
+        JOIN modules m ON m.id = a.module_id AND m.track = 'core'
+        WHERE a.kind = 'module' AND a.passed = 1 GROUP BY a.user_id
     ),
     lab_req AS (
         SELECT user_id, COUNT(*) AS n FROM lab_progress WHERE step_no <= :lab_required GROUP BY user_id
@@ -509,7 +525,7 @@ def _learner_stats_sql():
                COUNT(*) AS attempts FROM quiz_attempts WHERE kind = 'final' GROUP BY user_id
     )
     SELECT u.id, u.associate_id, u.name, u.email, u.department, u.location, u.created_at, u.last_login,
-           u.password_hash IS NOT NULL AS registered,
+           u.is_reviewer, u.password_hash IS NOT NULL AS registered,
            COALESCE(ld.n, 0) AS lessons_done,
            COALESCE(qp.n, 0) AS quizzes_passed,
            COALESCE(lr.n, 0) AS lab_done,
@@ -535,8 +551,8 @@ def learner_status(row, total_lessons):
     return "Not started"
 
 
-def learner_rows(conn, search="", department="", status="", limit=None, offset=0):
-    total_lessons = conn.execute("SELECT COUNT(*) FROM lessons WHERE active = 1").fetchone()[0]
+def learner_rows(conn, search="", department="", status="", limit=None, offset=0, coaches_only=False):
+    total_lessons = conn.execute(CORE_LESSONS_SQL).fetchone()[0]
     sql = "SELECT * FROM (" + _learner_stats_sql() + ") WHERE 1 = 1"
     params = {"lab_required": content.LAB_REQUIRED_STEPS}
     if search:
@@ -545,6 +561,8 @@ def learner_rows(conn, search="", department="", status="", limit=None, offset=0
     if department:
         sql += " AND department = :dept"
         params["dept"] = department
+    if coaches_only:
+        sql += " AND is_reviewer = 1"
     sql += " ORDER BY department, name"
     rows = []
     for r in conn.execute(sql, params):
@@ -608,7 +626,7 @@ def module_funnel(conn):
         passed = conn.execute(
             "SELECT COUNT(DISTINCT user_id) FROM quiz_attempts WHERE module_id = ? AND passed = 1", (m["id"],)
         ).fetchone()[0]
-        out.append({"title": m["title"], "completed": completed, "passed": passed})
+        out.append({"slug": m["slug"], "title": m["title"], "completed": completed, "passed": passed})
     return out
 
 

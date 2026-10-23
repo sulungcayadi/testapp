@@ -114,7 +114,7 @@ class T02LearnerJourney(AppTestCase):
         self.assertIn("/dashboard", url)
 
         conn = self.conn()
-        modules = svc.list_modules(conn)
+        modules = svc.list_modules(conn, "core")
         token = c.csrf()
 
         # POST without csrf is rejected
@@ -125,7 +125,7 @@ class T02LearnerJourney(AppTestCase):
 
         for m in modules:
             _, _, html = c.get("/module/" + m["slug"])
-            self.assertIn(m["title"].split(". ", 1)[1], html.replace("&amp;", "&"))
+            self.assertIn(m["title"].split(". ", 1)[-1], html.replace("&amp;", "&"))
             for les in svc.module_lessons(conn, m["id"]):
                 _, _, html = c.get("/module/{}/lesson/{}".format(m["slug"], les["slug"]))
                 self.assertIn("Mark lesson complete", html)
@@ -306,7 +306,7 @@ class T03Admin(AppTestCase):
                                                 "category": "Org", "prompt": "Who approves agent sharing here?",
                                                 "opt0": "Your manager", "opt1": "Anyone", "opt2": "", "opt3": "",
                                                 "correct": "0", "rationale": "Per our internal policy."})
-        self.assertIn("ORG-Q01", urllib.parse.unquote_plus(url))
+        self.assertIn("Question added", urllib.parse.unquote_plus(url))
         q = conn.execute("SELECT * FROM questions WHERE code = 'ORG-Q01'").fetchone()
         self.assertEqual(json.loads(q["options_json"]), ["Your manager", "Anyone"])
         c.post("/admin/questions", {"csrf": token, "action": "toggle", "id": str(q["id"]), "active": "0"})
